@@ -71,7 +71,6 @@ class Inception3Net{
     
     
     
-    // MPSImageDescriptor for different mixed layer outputs
     let sid   = MPSImageDescriptor(channelFormat: textureFormat, width: 299, height: 299, featureChannels: 3)
     let inid  = MPSImageDescriptor(channelFormat: textureFormat, width: 35 , height: 35 , featureChannels: 192)
     let m0id  = MPSImageDescriptor(channelFormat: textureFormat, width: 35 , height: 35 , featureChannels: 256)
@@ -1064,6 +1063,7 @@ class Inception3Net{
         // In this sample code, the aggregate benefit of the use of MPSTemporaryImages
         // is to reduce the area of memory allocated to 1/4 and save about 3 ms of CPU
         // time.
+        [sid, inid, m0id, m1id, m2id, m3id, m4id, m5id, m6id, m7id, m8id, m9id, m10id].forEach { $0.storageMode = .private }
         MPSTemporaryImage.prefetchStorage(with: commandBuffer, imageDescriptorList: [sid, inid, m0id, m1id, m2id, m3id, m4id, m5id, m6id, m7id, m8id, m9id, m10id])
         
         // we use preImage to hold preprocesing intermediate results
