@@ -74,10 +74,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
          This function is to conform to UIImagePickerControllerDelegate protocol,
          contents are executed after the user selects a picture he took via camera
      */
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         // get taken picture as UIImage
-        let uiImg = info[UIImagePickerControllerOriginalImage] as! UIImage
+        let uiImg = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
         
         // display the image in UIImage View
         predictView.image = uiImg
@@ -101,7 +101,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         // get a texture from this CGImage
         do {
-            sourceTexture = try textureLoader.newTexture(with: cgImg!, options: [:])
+            sourceTexture = try textureLoader.newTexture(cgImage: cgImg!, options: [MTKTextureLoader.Option: Any]())
         }
         catch let error as NSError {
             fatalError("Unexpected error ocurred: \(error.localizedDescription).")
@@ -120,7 +120,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         // set the picker to camera so the user can take an image
         picker.delegate = self
-        picker.sourceType = UIImagePickerControllerSourceType.camera
+        picker.sourceType = UIImagePickerController.SourceType.camera
         
         // call the camera
         present(picker, animated: true, completion: nil)
@@ -213,7 +213,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let URL = Bundle.main.url(forResource:name, withExtension: "jpg")
     
         do {
-            sourceTexture = try textureLoader.newTexture(withContentsOf: URL!, options: [:])
+            sourceTexture = try textureLoader.newTexture(URL: URL!, options: [MTKTextureLoader.Option: Any]())
         }
         catch let error as NSError {
             fatalError("Unexpected error ocurred: \(error.localizedDescription).")
@@ -237,7 +237,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // so the user can decide the appropriate time to release this
         autoreleasepool{
             // encoding command buffer
-            let commandBuffer = commandQueue.makeCommandBuffer()
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
             
             // encode all layers of network on present commandBuffer, pass in the input image MTLTexture
             Net!.forward(commandBuffer: commandBuffer, sourceTexture: sourceTexture)
@@ -255,4 +255,3 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
 }
-
